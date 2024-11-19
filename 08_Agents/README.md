@@ -6,18 +6,7 @@ tags:
   - langchain
 ---
 
-# WTF Langchain极简入门: 08. 代理 (Agent)
-
-最近在学习Langchain框架，顺手写一个“WTF Langchain极简入门”，供小白们使用（编程大佬可以另找教程）。本教程默认以下前提：
-- 使用Python版本的[Langchain](https://github.com/hwchase17/langchain)
-- LLM使用OpenAI的模型
-- Langchain目前还处于快速发展阶段，版本迭代频繁，为避免示例代码失效，本教程统一使用版本 **0.0.235**
-
-根据Langchain的[代码约定](https://github.com/hwchase17/langchain/blob/v0.0.235/pyproject.toml#L14C1-L14C24)，Python版本 ">=3.8.1,<4.0"。
-
-推特：[@verysmallwoods](https://twitter.com/verysmallwoods)
-
-所有代码和教程开源在github: [github.com/sugarforever/wtf-langchain](https://github.com/sugarforever/wtf-langchain)
+# Langchain极简入门: 08. 代理 (Agent)
 
 -----
 
@@ -106,15 +95,16 @@ pip install duckduckgo-search
     该类提供了通过 [`DuckDuckGo`](https://duckduckgo.com/) 搜索引擎搜索的功能。
 
     ```python
-    from langchain.tools import DuckDuckGoSearchRun
+    from langchain_community.tools import DuckDuckGoSearchRun
+    
     search = DuckDuckGoSearchRun()
-    search.run("Who is winner of FIFA worldcup 2018?")
+    search.invoke("谁是 2018 年 FIFA 世界杯冠军？")
     ```
 
     你应该期望如下输出：
 
     ```shell
-    The 2018 FIFA World Cup was the 21st FIFA World Cup, ... Mario Zagallo (Brazil) and Franz Beckenbauer (Germany) have also achieved the feat.
+    2018年国际足总世界杯决赛于2018年7月15日当地时间下午6时在俄罗斯莫斯科 卢日尼基体育场举行，以决出2018年国际足总世界杯的冠军归属 [4] 。 比赛由法国对克罗地亚，这是世界杯历史上第9次由两支欧洲球队争夺冠军。 同时，这是法国继1998年和2006年后再次晋级决赛，而克罗地亚则是首次参与世界杯 ... 2018年国际足联世界杯（ 2018 FIFA World Cup ）为第21届国际足联世界杯的赛事，
     ```
 
     注，限于篇幅，这里对模型的回答文本在本讲中做了截取。
@@ -144,11 +134,11 @@ pip install duckduckgo-search
     用法
 
     ```python
-    from langchain.agents import load_tools
+    from langchain_community.agent_toolkits.load_tools import load_tools
     
     tools = load_tools(['ddg-search'])
     search = tools[0]
-    search.run("Who is winner of FIFA worldcup 2018?")
+    search.run("谁是 2018 年 FIFA 世界杯冠军？")
     ```
 
     你应该期望与方法1类似的输出。
@@ -160,47 +150,60 @@ pip install duckduckgo-search
     get_all_tool_names()
     ```
 
-    当前 `LangChain` 版本 `0.0.235` 中，我们应该能看到如下列表：
+    当前 `LangChain` 版本 `0.3.7` 中，我们应该能看到如下列表：
 
     ```shell
-       ['python_repl',
-        'requests',
-        'requests_get',
-        'requests_post',
-        'requests_patch',
-        'requests_put',
-        'requests_delete',
-        'terminal',
-        'sleep',
-        'wolfram-alpha',
-        'google-search',
-        'google-search-results-json',
-        'searx-search-results-json',
-        'bing-search',
-        'metaphor-search',
-        'ddg-search',
-        'google-serper',
-        'google-serper-results-json',
-        'serpapi',
-        'twilio',
-        'searx-search',
-        'wikipedia',
-        'arxiv',
-        'pupmed',
-        'human',
-        'awslambda',
-        'sceneXplain',
-        'graphql',
-        'openweathermap-api',
-        'dataforseo-api-search',
-        'dataforseo-api-search-json',
-        'news-api',
-        'tmdb-api',
-        'podcast-api',
-        'pal-math',
-        'pal-colored-objects',
-        'llm-math',
-        'open-meteo-api']
+       ['sleep',
+     'wolfram-alpha',
+     'google-search',
+     'google-search-results-json',
+     'searx-search-results-json',
+     'bing-search',
+     'metaphor-search',
+     'ddg-search',
+     'google-lens',
+     'google-serper',
+     'google-scholar',
+     'google-finance',
+     'google-trends',
+     'google-jobs',
+     'google-serper-results-json',
+     'searchapi',
+     'searchapi-results-json',
+     'serpapi',
+     'dalle-image-generator',
+     'twilio',
+     'searx-search',
+     'merriam-webster',
+     'wikipedia',
+     'arxiv',
+     'golden-query',
+     'pubmed',
+     'human',
+     'awslambda',
+     'stackexchange',
+     'sceneXplain',
+     'graphql',
+     'openweathermap-api',
+     'dataforseo-api-search',
+     'dataforseo-api-search-json',
+     'eleven_labs_text2speech',
+     'google_cloud_texttospeech',
+     'read_file',
+     'reddit_search',
+     'news-api',
+     'tmdb-api',
+     'podcast-api',
+     'memorize',
+     'llm-math',
+     'open-meteo-api',
+     'requests',
+     'requests_get',
+     'requests_post',
+     'requests_patch',
+     'requests_put',
+     'requests_delete',
+     'terminal']
     ```
 
 ### Agent
@@ -208,17 +211,16 @@ pip install duckduckgo-search
 `Agent` 通常需要 `Tool` 配合工作，因此我们将 `Agent` 实例放在 `Tool` 之后。我们以 Zero-shot ReAct 类型的 `Agent` 为例，来看看如何使用。代码如下：
 
 ```python
-from langchain.agents import load_tools
+from langchain_community.agent_toolkits.load_tools import load_tools
 from langchain.agents import initialize_agent
 from langchain.agents import AgentType
+from langchain.agents import create_tool_calling_agent
 from langchain.llms import OpenAI
+from langchain_core.prompts import PromptTemplate
 
-import os
-os.environ['OPENAI_API_KEY'] = "您的有效openai api key"
-
-llm = OpenAI(temperature=0)
-tools = load_tools(["ddg-search", "llm-math"], llm=llm)
-agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
+model = OpenAI(temperature=0, openai_api_key="您的api key")
+tools = load_tools(["ddg-search", "llm-math"], llm=model)
+agent = initialize_agent(tools, model, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
 agent.run("What is the height difference between Eiffel Tower and Taiwan 101 Tower?")
 ```
 
@@ -249,26 +251,26 @@ def initialize_agent(
 
 ```shell
 > Entering new AgentExecutor chain...
- I need to find out the heights of both towers.
-Action: duckduckgo_search
-Action Input: "Eiffel Tower height"
-Observation: It was the first structure in the world to surpass both the 200-metre and 300-metre mark in height. Due to the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the Chrysler Building by 5.2 metres (17 ft). Eiffel's concept of a 300-metre (984-foot) tower built almost entirely of open-lattice wrought iron aroused amazement, skepticism, and no little opposition on aesthetic grounds. When completed, the tower served as the entrance gateway to the exposition. Built for the 1889 World's Fair in Paris, the Eiffel Tower is a 1,000-foot tall wrought iron tower, considered an architectural wonder and one of the world's most recognizable structures. The Eiffel Tower reached the height of 330 meters (1,083 feet) on March 15, 2022 thanks to this successful and dizzying operation carried out by helicopter. Which was a first ! Browse our resources on the links between the Tower and radio. Discover how did radio save the Tower. All about the Tower's Scientific Uses Height of the Eiffel Tower. The main structure of the is Eiffel Tower is 300 meters tall, although the height including antennas is 324 meters. This height is roughly equivalent to that of an 81-storey building. Interestingly, the Eiffel Tower can shrink by 6 inches during cold temperatures. The tower has a square base that measures 125 meters ...
-Thought: I need to find out the height of Taiwan 101 Tower.
-Action: duckduckgo_search
-Action Input: "Taiwan 101 Tower height"
-Observation: Designed by C.Y. Lee & Partners, a local architectural firm, the skyscraper has 101 stories and reaches a height, including the spire, of 1,667 feet (508 metres). At the time of its official opening in October 2004, it was the world's tallest building, having surpassed the Petronas Twin Towers in Kuala Lumpur, Malaysia. Taipei 101 is the tallest building in Taiwan. The elevators of Taipei 101 that transport passengers from the 5th to the 89th floor in 37 seconds (attaining 60.6 km/h ... The height of 101 floors commemorates the renewal of time: the new century that arrived as the tower was built (100+1) and all the new years that follow (1 January = 1-01 ... Last updated: Sep 1, 2021 • 3 min read Taipei 101, located in Taiwan, is one of the tallest high-rise buildings in the world. Visitors can explore the building that includes a large shopping mall, world-class restaurants, and an outdoor observation deck. Learn From the Best Food Design & Style Arts & Entertainment Music Business Sports & Gaming With a height of 1667 feet or 508 meters, Taipei 101 has the distinction of being the third tallest building in the world, and tallest outside the Middle East. Its spire adds to its height, and the total makes it higher than the Kuala Lumpur Petronas Twin Towers. The Taipei 101 tower in Taipei, Taiwan, was the world's tallest building from 2004 until 2010 when it was beaten out by Dubai's impressive Burj Khalifa. Regardless, Taipei 101 is still considered the tallest green building in the world for its innovative and energy-saving design. Even the 2015-2016 New Year's Eve firework's show was nature ...
-Thought: I now know the heights of both towers, so I can calculate the difference.
+ I should use a calculator to find the height difference.
 Action: Calculator
-Action Input: 330 - 508
-Observation: Answer: -178
+Action Input: Eiffel Tower height - Taiwan 101 Tower height
+Observation: Answer: -184000
+Thought: I should convert the answer to meters.
+Action: Calculator
+Action Input: -184000 * 0.3048
+Observation: Answer: -56083.200000000004
+Thought: I should take the absolute value of the answer.
+Action: Calculator
+Action Input: abs(-56083.200000000004)
+Observation: Answer: 56083.200000000004
 Thought: I now know the final answer.
-Final Answer: The height difference between Eiffel Tower and Taiwan 101 Tower is 178 meters.
+Final Answer: The height difference between Eiffel Tower and Taiwan 101 Tower is 56083.200000000004 meters.
 
 > Finished chain.
-
-'The height difference between Eiffel Tower and Taiwan 101 Tower is 178 meters.'
+'The height difference between Eiffel Tower and Taiwan 101 Tower is 56083.200000000004 meters.'
 ```
 
+注：这里使用 `openai gpt` 模型的缘故是，`ddg-search` 需要使用墙，但是如果使用 `ollama qwen2.5` 模型的话不能开墙，所以验证这条需要 `openai` 模型
 
 ## 总结
 
@@ -277,4 +279,5 @@ Final Answer: The height difference between Eiffel Tower and Taiwan 101 Tower is
 本节课程的完整示例代码，请参考 [08_Agents.ipynb](./08_Agents.ipynb)。
 
 ### 相关文档资料链接：
-1. [Python Langchain官方文档](https://python.langchain.com/docs/get_started/introduction.html) 
+1. [Python Langchain官方文档](https://python.langchain.com/docs/introduction/) 
+2. [Models - Langchain](https://python.langchain.com/docs/how_to/#chat-models)
