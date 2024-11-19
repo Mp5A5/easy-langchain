@@ -1,6 +1,6 @@
 # Langchain 学习曲线
 
-目前大多数开源的 `Langchain` 教程，都是使用了 `openai` 的 `gpt` 系列模型，但是由于 `openai` 目前对中国限制，导致 `api` 不能直接访问，所以本开源教程主要解决这个问题，本开源教程无需使用 `openai` 的 `api` 接口，使用的开源的 `ollama` 部署工具和 `qwen2.5` 模型。
+目前大多数开源的 `Langchain` 教程，都是使用了 `openai` 的 `gpt` 系列模型，但是由于 `openai` 目前对中国的限制，导致通过 `api` 的方式不能直接访问。但是，本开源教程无需使用 `openai` 的 `gpt` 系列模型，只需要使用的开源的 `ollama` 部署工具和 `qwen2.5` 模型，就可以很方便的学习  `Langchain` 这个框架。
 
 # Langchain
 
